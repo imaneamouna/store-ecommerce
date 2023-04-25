@@ -12,6 +12,22 @@ class Authenticate extends Middleware
      */
     protected function redirectTo(Request $request): ?string
     {
-        return $request->expectsJson() ? null : route('login');
+          return $request->expectsJson() ? null :  route('get.admin.login');
+        //   $Request = Request::all()->get();
+     if ($request->expectsJson()) {
+        if(Request::is('admin/* ')){
+         //if he do not have a seesion return him to login route
+         return route('admin.login');
+
+        }else{
+            return route('login');
+        }
+
+
+    //     return response()->json(['error' => 'Unauthenticated.'], 401);
+     }
+
+    // return redirect()->guest(route('admin.login'));
+
     }
 }

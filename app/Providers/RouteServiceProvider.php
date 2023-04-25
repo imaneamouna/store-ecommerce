@@ -17,24 +17,108 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    public const HOME = '/home';
 
+    protected $namespaceAdmin = 'App\Http\Controllers\Admin';
+
+    public const HOME = '/home';
+    public const ADMIN = '/admin';
+
+
+    protected $namespace = 'App\Http\Controllers';
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
      */
-    public function boot(): void
+    // public function boot(): void
+    // {
+    //     $this->configureRateLimiting();
+
+    //     $this->routes(function () {
+    //         Route::middleware('api')
+    //             ->prefix('api')
+    //             ->group(base_path('routes/api.php'));
+
+    //         Route::middleware('web')
+    //         ->prefix('admin')
+    //             ->group(base_path('routes/web.php'));
+
+    //             Route::middleware('site')
+    //             ->group(base_path('routes/site.php'));
+
+    //             Route::middleware('admin')
+    //             ->prefix('admin')
+    //             ->group(base_path('routes/admin.php'));
+    //     });
+    // }
+
+    public function boot()
     {
         $this->configureRateLimiting();
 
-        $this->routes(function () {
-            Route::middleware('api')
-                ->prefix('api')
-                ->group(base_path('routes/api.php'));
+        parent::boot();
 
-            Route::middleware('web')
-                ->group(base_path('routes/web.php'));
+        $this->routes(function () {
+            $this->mapWebRoutes();
+            $this->mapAdminRoutes();
+            $this->mapApiRoutes();
         });
     }
+
+
+    /**
+     * Define the "web" routes for the application.
+     *
+     * These routes all receive session state, CSRF protection, etc.
+     *
+     * @return void
+     */
+    protected function mapWebRoutes()
+    {
+        Route::middleware('web')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/web.php'));
+    }
+
+    /**
+     * Define the "Dashboar" routes for the application.
+     *
+     * These routes are typically stateless.
+     *
+     * @return void
+     */
+    protected function mapAdminRoutes()
+    {
+        Route::middleware('web')
+            ->namespace($this->namespaceAdmin)
+             ->prefix('admin')
+
+            ->group(base_path('routes/admin.php'));
+
+        // Route::group([
+        //     'prefix' => LaravelLocalization::setLocale(),
+        //     'middleware' => [ 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath' ]
+        //     ], function() {
+        //     Route::group(['namespace' => 'Dashboard','prefix' => 'dashboard'], function () {
+        //         Route::get('/', 'HomeController@index')->name('dashboard.index');
+        //         Route::get('home', 'HomeController@index')->name('dashboard.home');
+        //     });
+        // });
+    }
+
+    /**
+     * Define the "api" routes for the application.
+     *
+     * These routes are typically stateless.
+     *
+     * @return void
+     */
+    protected function mapApiRoutes()
+    {
+        Route::prefix('api')
+            ->middleware('api')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/api.php'));
+    }
+
 
     /**
      * Configure the rate limiters for the application.
